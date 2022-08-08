@@ -17,6 +17,7 @@
 	<button id="btn-update" class="btn btn-primary">글쓰기 완료</button>
 </div>
 
+
 <script>
 	$('.summernote').summernote({
 		tabsize: 2,
