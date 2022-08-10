@@ -2,6 +2,10 @@ package com.cos.blog.service;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +33,31 @@ public class UserService {
 		userInfo.setPassword(encPassword);
 		userInfo.setRole(RoleType.USER);
 		userInfoRepository.save(userInfo);
+	}
+	
+	@Transactional(readOnly = true)
+	public UserInfo 회원찾기(String username) {
+		UserInfo userInfo = userInfoRepository.findByUsername(username);
+		
+		return userInfo;
+	}
+	
+	@Transactional
+	public void 회원수정(UserInfo userInfo) {
+		UserInfo persistance = userInfoRepository.findById(userInfo.getId())
+				.orElseThrow(()->{
+					return new IllegalArgumentException("회원찾기실패");
+				});
+		
+		// validation check
+		if(persistance.getOauth() == null || persistance.getOauth().equals("")) {
+			String rawPassword = userInfo.getPassword();
+			String encPassword = encoder.encode(rawPassword);
+			persistance.setPassword(encPassword);			
+			persistance.setEmail(userInfo.getEmail());
+		}
+		
+		//회원수정 종료 -> 서비스 종료 -> 트랜잭션 종료 -> commit 이 자동으로 된다 (더티체킹)
 	}
 	
 	//전통적인 스프링 로그인 방법 (시큐리티 사용시 사용하지 않음)

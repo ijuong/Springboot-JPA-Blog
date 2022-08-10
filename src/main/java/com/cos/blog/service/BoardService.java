@@ -12,9 +12,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.cos.blog.model.Board;
+import com.cos.blog.model.Reply;
 import com.cos.blog.model.RoleType;
 import com.cos.blog.model.UserInfo;
 import com.cos.blog.repository.BoardRepository;
+import com.cos.blog.repository.ReplyRepository;
 import com.cos.blog.repository.UserInfoRepository;
 
 //스프링이 컴포넌트 스캔을 통해서 bean에 등록을 해줌
@@ -23,6 +25,9 @@ public class BoardService {
 
 	@Autowired
 	BoardRepository boardRepository;
+	
+	@Autowired
+	ReplyRepository replyRepository;
 	
 	@Transactional
 	public void 글쓰기(Board board, UserInfo userInfo) {
@@ -63,5 +68,17 @@ public class BoardService {
 		System.out.println("@@@getTitle : " + requestBoard.getTitle());
 		System.out.println("@@@getContent : " + requestBoard.getContent());
 		//해당함수 service 가 종료될때 트랜잭션 이 종료된다. 이때 더티체킹 - 자동 업데이트가 됨 db flush.
+	}
+	
+	@Transactional
+	public void 댓글쓰기(UserInfo userInfo, int boardId, Reply requestReply) {
+		
+		Board board = boardRepository.findById(boardId).orElseThrow(()->{
+			return new IllegalArgumentException("댓글쓰기 실패: 게시글 id를 찾을수 없습니다");
+		});
+		requestReply.setUserInfo(userInfo); 
+		requestReply.setBoard(board);
+		
+		replyRepository.save(requestReply);
 	}
 }

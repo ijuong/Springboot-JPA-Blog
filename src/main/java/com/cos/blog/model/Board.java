@@ -13,9 +13,12 @@ import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -46,7 +49,9 @@ public class Board {
 	private UserInfo userInfo; //db는 오브젝트를 저장할 수 없어 fk를 사용
 	
 	@OneToMany(mappedBy = "board", fetch = FetchType.EAGER) //mappedBy 연관관계의 주인이 아니다(fk가 아니다)db에 컬럼을 만들지 않음
-	private List<Reply> reply;
+	@JsonIgnoreProperties({"board"}) //board 모델의reply 에 의해 무한 참조가 되는 것을 막는다 
+	@OrderBy("id desc") //reply 의 id 를 내림차순으로 정렬해서가지고 온다
+	private List<Reply> replys;
 	
 	@CreationTimestamp
 	private Timestamp createDate;

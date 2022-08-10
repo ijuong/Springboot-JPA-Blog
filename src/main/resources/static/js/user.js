@@ -3,6 +3,9 @@ let index = {
 		$("#btn-save").on("click", ()=>{
 			this.save();
 		});
+		$("#btn-update").on("click", ()=>{
+			this.update();
+		});
 		
 		//$("#btn-login").on("click", ()=>{
 		//	this.login();
@@ -29,6 +32,31 @@ let index = {
 			
 		}).done(function(resp){
 			alert("회원가입이 완료되었습니다");
+			location.href = "/";
+			
+		}).fail(function(error){
+			alert(JSON.stringify(error));
+			
+		}); 
+	},
+	
+	update: function(){
+		let data = {
+			id: $("#id").val(),
+			username: $("#username").val(),
+			password: $("#password").val(),
+			email: $("#email").val()
+		};
+		
+		$.ajax({
+			type: "PUT",
+			url: "/user",
+			data: JSON.stringify(data), //http body데이터
+			contentType: "application/json; charset=utf-8", //body 데이터 타입이 무엇인지 (MIME)
+			dataType: "json" //응답받는 데이터가 json이라면 => javascript object로 변환해
+			
+		}).done(function(resp){
+			alert("회원수정이 완료되었습니다");
 			location.href = "/";
 			
 		}).fail(function(error){

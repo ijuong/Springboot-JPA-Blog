@@ -37,7 +37,7 @@ public class Reply {
 	
 	@ManyToOne
 	@JoinColumn(name ="userId")
-	private UserInfo userinfo;
+	private UserInfo userInfo;
 	
 	@CreationTimestamp
 	private Timestamp createDate;

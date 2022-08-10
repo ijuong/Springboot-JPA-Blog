@@ -33,3 +33,6 @@ spring:
   jackson:
     serialization:
       fail-on-empty-beans: false
+
+temp:
+  key: 1111

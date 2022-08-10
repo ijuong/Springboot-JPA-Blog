@@ -1,0 +1,19 @@
+1. 웹서버주소: http://localhost:8000
+2. 클라이언트키: cefb5d15a9f6b2fbe6b2b40a5a1a78b6
+3. 카카오 로그인콜백 : http://localhost:8000/auth/kakao/callback
+
+4. 로그인 요청주소(get) : 
+https://kauth.kakao.com/oauth/authorize?client_id=cefb5d15a9f6b2fbe6b2b40a5a1a78b6&redirect_uri=http://localhost:8000/auth/kakao/callback&response_type=code
+
+5. 토큰발급주소 (post):
+주소: https://kauth.kakao.com/oauth/token
+헤더값 : application/x-www-form-urlencoded;charset=utf-8 (key=value 형태로 담아라)
+바디값:
+grant_type=authorization_code
+client_id=cefb5d15a9f6b2fbe6b2b40a5a1a78b6
+redirect_uri=http://localhost:8000/auth/kakao/callback
+code={동적}
+
+6. 토큰을 통한 사용자 조회(post)
+주소: https://kapi.kakao.com/v2/user/me
+헤더값: Authorization: Bearer ${ACCESS_TOKEN}

@@ -1,30 +1,42 @@
 package com.cos.blog.config;
 
-import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.ldap.EmbeddedLdapServerContextSourceFactoryBean;
-import org.springframework.security.config.ldap.LdapBindAuthenticationManagerFactory;
-import org.springframework.security.crypto.bcrypt.BCrypt;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.AccessDeniedHandler;
-
-import com.cos.blog.config.auth.PrincipalDetailService;
 
 @Configuration // 빈등록
 @EnableWebSecurity // 필터가 등록이 된다
 @EnableGlobalMethodSecurity(prePostEnabled = true) // 특정주소로 접근을 하면 권한 및 인증을 미리 체크하겠다는 뜻.
 public class SecurityConfig {
+
+	@Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		http
+			.csrf().disable() //csrf token 비활성화 (테스트 걸어주는게 좋음)
+			.authorizeRequests()
+		        	.antMatchers("/", "/auth/**", "/js/**", "/css/**", "/image/**")
+		        	.permitAll()
+		        	.anyRequest()
+		        	.authenticated()
+		        .and()
+		        	.formLogin()
+		        	.loginPage("/auth/loginForm")
+		        	.loginProcessingUrl("/auth/loginProc") //스프링 시큐리티가 해당주소로 오는 로그인을  가로챈서 대신로그인을 해준다.
+		        	.defaultSuccessUrl("/")
+		        	.failureUrl("/auth/joinForm")
+		        	;
+		return http.build();
+	}
 	
 //	private PrincipalDetailService principalDetailService;
 //	@Override
@@ -53,23 +65,4 @@ public class SecurityConfig {
 //		auth.userDetailsService(principalDetailService).passwordEncoder(encodePWD());
 //	}
 	
-
-	@Bean
-	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		http
-			.csrf().disable() //csrf token 비활성화 (테스트 걸어주는게 좋음)
-			.authorizeRequests()
-		        	.antMatchers("/", "/auth/**", "/js/**", "/css/**", "/image/**")
-		        	.permitAll()
-		        	.anyRequest()
-		        	.authenticated()
-		        .and()
-		        	.formLogin()
-		        	.loginPage("/auth/loginForm")
-		        	.loginProcessingUrl("/auth/loginProc") //스프링 시큐리티가 해당주소로 오는 로그인을  가로챈서 대신로그인을 해준다.
-		        	.defaultSuccessUrl("/")
-		        	.failureUrl("/auth/joinForm")
-		        	;
-		return http.build();
-	}
 }

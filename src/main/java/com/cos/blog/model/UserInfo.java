@@ -31,7 +31,7 @@ public class UserInfo {
 	@GeneratedValue(strategy = GenerationType.IDENTITY) //프로젝트에서 연결된 db의 넘버링 전략을 따른
 	private int id; //sequence
 	
-	@Column(nullable = false, length = 30, unique = true)
+	@Column(nullable = false, length = 100, unique = true)
 	private String username; //아이디
 	
 	@Column(nullable = false, length = 100)
@@ -43,6 +43,8 @@ public class UserInfo {
 	//@ColumnDefault("'user'")
 	@Enumerated(EnumType.STRING) //enum을 쓰는데신 db에게 타입을 일려준다
 	private RoleType role; //Enum을 쓰는게 좋다 //admin, user, manager
+	
+	private String oauth;
 	
 	@CreationTimestamp // 시간이 자동으로 입력
 	private Timestamp createDate;
