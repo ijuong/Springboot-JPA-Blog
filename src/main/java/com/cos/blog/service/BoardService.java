@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import com.cos.blog.controller.dto.ReplySaveRequestDto;
 import com.cos.blog.model.Board;
 import com.cos.blog.model.Reply;
 import com.cos.blog.model.RoleType;
@@ -19,15 +20,29 @@ import com.cos.blog.repository.BoardRepository;
 import com.cos.blog.repository.ReplyRepository;
 import com.cos.blog.repository.UserInfoRepository;
 
+import lombok.RequiredArgsConstructor;
+
 //스프링이 컴포넌트 스캔을 통해서 bean에 등록을 해줌
 @Service
+@RequiredArgsConstructor
 public class BoardService {
-
-	@Autowired
-	BoardRepository boardRepository;
 	
-	@Autowired
-	ReplyRepository replyRepository;
+	//autowired 를 사용안하고 클래스맨위에 requiredargsconstructor를 쓰면 아래처럼 final 로 변수선언을 할수 있다 
+	//(같은방법) 
+	private final BoardRepository boardRepository;
+	private final UserInfoRepository userInfoRepository;	
+	private final ReplyRepository replyRepository;
+	
+	
+
+	//@Autowired
+	//BoardRepository boardRepository;
+	
+	//@Autowired
+	//UserInfoRepository userInfoRepository;
+	
+	//@Autowired
+	//ReplyRepository replyRepository;
 	
 	@Transactional
 	public void 글쓰기(Board board, UserInfo userInfo) {
@@ -71,14 +86,36 @@ public class BoardService {
 	}
 	
 	@Transactional
-	public void 댓글쓰기(UserInfo userInfo, int boardId, Reply requestReply) {
+	public void 댓글쓰기(ReplySaveRequestDto replySaveRequestDto) {		
 		
-		Board board = boardRepository.findById(boardId).orElseThrow(()->{
+		//native query 로 바로인서트
+		replyRepository.mSave(replySaveRequestDto);
+		
+		//아래는 객체를 영속화 하여 jpa 인서트 
+		/*
+		UserInfo userInfo = userInfoRepository.findById(replySaveRequestDto.getUserId()).orElseThrow(()->{
+			return new IllegalArgumentException("댓글쓰기 실패: 작성 id를 찾을수 없습니다");
+		});
+		
+		Board board = boardRepository.findById(replySaveRequestDto.getBoardId()).orElseThrow(()->{
 			return new IllegalArgumentException("댓글쓰기 실패: 게시글 id를 찾을수 없습니다");
 		});
-		requestReply.setUserInfo(userInfo); 
-		requestReply.setBoard(board);
+				
+//		아래가 모델에 update 메소드를 만들어서 더 간편하게 할수 있다.
+//		Reply reply = Reply.builder()
+//				.content(replySaveRequestDto.getContent())
+//				.userInfo(userInfo)
+//				.board(board)
+//				.build();
+		Reply reply = new Reply();
+		reply.update(userInfo, board, replySaveRequestDto.getContent());
 		
-		replyRepository.save(requestReply);
+		replyRepository.save(reply);
+		*/
+	}
+	
+	@Transactional
+	public void 댓글삭제(int replyId) {
+		replyRepository.deleteById(replyId);
 	}
 }
